@@ -1,0 +1,38 @@
+.board2d {
+    display: grid;
+    grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px ;
+    grid-template-rows: 50px 50px 50px 50px 50px 50px 50px 50px ;
+    border: solid black 2px;
+    width: fit-content;
+}
+
+.field {
+}
+
+.color1 {
+    background-color: limegreen;
+}
+
+.color2 {
+    background-color: lightgray;
+}
+
+.activated {
+    border: white solid 5px;
+}
+
+.redPawn {
+    background-color: red;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    margin: 5px;
+}
+
+.bluePawn {
+    background-color: blue;
+    width: 40px;
+    height: 40px;
+    border-radius: 20px;
+    margin: 5px;
+}
