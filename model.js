@@ -15,7 +15,12 @@ export class Board {
                 }
             }
         }
+        this.observers = []
+        this.dice = new Dice();
+    }
 
+    attachObserver(observer){
+        this.observers.push(observer)
     }
 
     at(x, y ,z){
@@ -36,36 +41,48 @@ export class Board {
         }
     }
 
-    click(field){
-
+    highlight(fields){
+        fields.forEach(el=>{
+            this.observers.forEach(obs=>obs.observeHighlight(el))
+            el.state = "active"
+        })
+        this.highlighted.push(...fields)
     }
 
-    makeBoard(parent){
-        for (let k = 0; k < this.sizeZ; k++) {
-            let elementBoard2d = document.createElement("div")
-            parent.appendChild(elementBoard2d)
-            elementBoard2d.className = "board2d"
-            for (let j = 0; j < this.sizeY; j++) {
-                for (let i = 0; i < this.sizeX; i++) {
-                    let div = document.createElement("div")
-                    div.className = "field"
-                    div.classList.toggle((i + j)%2 ? "color1": "color2")
-                    this.fields[i][j][k].div = div
-                    div.addEventListener("click", ()=>this.fields[i][j][k].onClick())
-                    elementBoard2d.appendChild(div)
+    highlightOffAll(){
+        this.highlighted.forEach(el=>{
+            this.observers.forEach(obs=>obs.observeHighlightOff(el))
+            el.state = "empty"
+        })
+        this.highlighted = []
+    }
+
+    click(field){
+        switch (field.state) {
+            case "empty":
+                this.highlightOffAll()
+                this.selected = null
+                break;
+            case "red":
+            case "blue":
+                if (field === this.selected){
+                    this.highlightOffAll()
+                    this.selected = null
+                } else {
+                    this.selected = field
+                    this.highlightOffAll()
+                    this.highlight(field.neighbours().filter(n => n.state === "empty"))
                 }
-            }
+                break;
+            case "active":
+                this.highlightOffAll()
+                field.state = this.selected.state
+                this.selected.state = "empty"
+                this.observers.forEach(obs=>obs.observeMove(this.selected, field))
+                this.selected = null
         }
     }
-
-    addPawn(color, x, y, z){
-        let field = this.at(x, y, z)
-        let pawn = document.createElement("div")
-        pawn.className = color === "blue" ? "bluePawn" : "redPawn"
-        field.div?.appendChild(pawn)
-        field.state = color
-    }
-
+    
 }
 
 export class Field {
@@ -75,7 +92,6 @@ export class Field {
         this.y = y
         this.z = z
         this.state = 'empty'
-        this.div = null
     }
 
     neighbours() {
@@ -89,49 +105,22 @@ export class Field {
         return result
     }
 
-    toString() {
-        return `${this.x}, ${this.y}, ${this.z}`
+    click(){
+        this.board.click(this)
     }
+}
 
-    toggleActive(){
-        this.div.classList.toggle("activated")
-        if (this.state==="active"){
-            this.state="empty"
-        } else {
-            this.state="active"
-        }
-    }
+export class BoardObserver { //interface
+    observeMove(from, to){};
+    observeHighlight(field){};
+    observeHighlightOff(field){};
+    observeKill(killed, enemies){};
+    observeFailedEscape(from, to, enemies){};
+    observeFighting(defending, enemies){};
+}
 
-    onClick() {
-        console.log(this.toString())
-        switch (this.state) {
-            case "empty":
-                this.board.highlighted.forEach(el=>el.toggleActive())
-                this.board.selected = null
-                this.board.highlighted = []
-                break
-            case "red":
-            case "blue":
-                if (this === this.board.selected){
-                    this.board.highlighted.forEach(el=>el.toggleActive())
-                    this.board.selected = null
-                    this.board.highlighted = []
-                } else {
-                    this.board.selected = this
-                    this.board.highlighted.forEach(el => el.toggleActive())
-                    this.board.highlighted = this.neighbours().filter(n => n.state === "empty")
-                    this.board.highlighted.forEach(el => el.toggleActive())
-                }
-                break
-            case "active":
-                this.board.highlighted.forEach(el=>el.toggleActive())
-                this.state = this.board.selected.state
-                this.board.selected.state = "empty"
-                let oldDiv = this.board.selected.div
-                let pawn = oldDiv.firstChild
-                this.div.appendChild(pawn)
-                this.board.selected = null
-                this.board.highlighted = []
-        }
+export class Dice {
+    roll(){
+        return Math.floor(Math.random() * 5 + 1);
     }
 }
