@@ -65,7 +65,8 @@ export class BoardDisplay2d extends BoardObserver{
     }
 
     observeKill(killed, enemies) {
-        super.observeKill(killed, enemies);
+        let div = this.at(killed)
+        div.removeChild(div.children[0])
     }
 
     observeFailedEscape(from, to, enemies) {

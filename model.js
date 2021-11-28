@@ -5,6 +5,7 @@ export class Board {
         this.sizeZ = z
         this.highlighted = []
         this.selected = null
+        this.toMove = "red"
         this.fields = Array(x)
         for (let i = 0; i < x; i++) {
             this.fields[i] = Array(y)
@@ -44,7 +45,6 @@ export class Board {
     highlight(fields){
         fields.forEach(el=>{
             this.observers.forEach(obs=>obs.observeHighlight(el))
-            el.state = "active"
         })
         this.highlighted.push(...fields)
     }
@@ -52,37 +52,82 @@ export class Board {
     highlightOffAll(){
         this.highlighted.forEach(el=>{
             this.observers.forEach(obs=>obs.observeHighlightOff(el))
-            el.state = "empty"
         })
         this.highlighted = []
     }
 
+    move(from, to){
+        if(this.dice.roll() >= from.enemyNeighbours()) {
+            to.state = from.state
+            from.state = "empty"
+            this.observers.forEach(obs => obs.observeMove(from, to))
+            if (to.enemyNeighbours().length > 0){
+                this.observers.forEach(obs => obs.observeFighting(to, to.enemyNeighbours()))
+            }
+        } else {
+            this.observers.forEach(obs=>obs.observeFailedEscape(from, to, from.enemyNeighbours()))
+        }
+    }
+
+    attack(to){
+        if(this.dice.roll() <= to.enemyNeighbours().length){
+            this.observers.forEach(obs=>obs.observeKill(to, to.enemyNeighbours()))
+            to.state = "empty"
+        }
+    }
+
+
+
     click(field){
+        if (this.highlighted.includes(field)){
+            this.highlightOffAll()
+            if (field.state === "empty") this.move(this.selected, field)
+            else if (field.state === this.selected.enemyColour()) this.attack(field)
+            this.selected = null
+            if (this.toMove==="red"){
+                this.toMove="blue"
+            } else {
+                this.toMove="red"
+            }
+            return;
+        }
         switch (field.state) {
             case "empty":
                 this.highlightOffAll()
                 this.selected = null
-                break;
+                return;
             case "red":
-            case "blue":
-                if (field === this.selected){
+                if (this.toMove !== "red"){
                     this.highlightOffAll()
                     this.selected = null
+                    return;
                 } else {
-                    this.selected = field
-                    this.highlightOffAll()
-                    this.highlight(field.neighbours().filter(n => n.state === "empty"))
+                    return this.highlightPossible(field);
                 }
-                break;
-            case "active":
-                this.highlightOffAll()
-                field.state = this.selected.state
-                this.selected.state = "empty"
-                this.observers.forEach(obs=>obs.observeMove(this.selected, field))
-                this.selected = null
+            case "blue":
+                if (this.toMove !== "blue"){
+                    this.highlightOffAll()
+                    this.selected = null
+                    return;
+                } else {
+                    return this.highlightPossible(field);
+                }
+
+
         }
     }
-    
+
+    highlightPossible(field) {
+        if (field === this.selected) {
+            this.highlightOffAll()
+            this.selected = null
+        } else {
+            this.selected = field
+            this.highlightOffAll()
+            this.highlight(field.possibleMoves())
+        }
+        return;
+    }
 }
 
 export class Field {
@@ -105,6 +150,20 @@ export class Field {
         return result
     }
 
+    enemyNeighbours(){
+        return this.neighbours().filter(n=>n.state===this.enemyColour())
+    }
+
+    possibleMoves(){
+        return this.neighbours().filter(n=>n.state===this.enemyColour() || n.state==="empty")
+    }
+
+    enemyColour(){
+        if (this.state === "red") return "blue"
+        if (this.state === "blue") return "red"
+        throw ""
+    }
+
     click(){
         this.board.click(this)
     }
@@ -121,6 +180,8 @@ export class BoardObserver { //interface
 
 export class Dice {
     roll(){
-        return Math.floor(Math.random() * 5 + 1);
+        let r = Math.floor(Math.random() * 5 + 1);
+        console.log(r)
+        return r
     }
 }
