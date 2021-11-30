@@ -4,6 +4,14 @@
         <script type='text/javascript' src='http://www.x3dom.org/download/x3dom.js'> </script> 
         <link rel='stylesheet' type='text/css' href='http://www.x3dom.org/download/x3dom.css'></link> 
         <script type="module" src="./index.js" defer></script>
+        <script>
+            function changeColor(event) {
+                console.log("click")
+                const myEvent = new Event('clickField');
+                document.dispatchEvent(myEvent);
+            }
+        </script>
+
     </head> 
     <body> 
         <button id="init">Init</button>
@@ -11,30 +19,10 @@
         <p> 
             This is my first html page with some 3d objects. 
         </p>
-        <x3d width='1000px' height='1000px'> 
-            <scene> 
+        <x3d width='1000px' height='800px'> 
+            <scene>
                 
             </scene> 
         </x3d>  
     </body> 
 </html>    
-
-
-
-<!-- Board -->
-                <!-- <transform> 
-                    <shape id="boardField"> 
-                        <appearance> 
-                            <material id="color" diffuseColor='1 0 0' transparency='0.5'></material> 
-                        </appearance> 
-                        <box></box> 
-                    </shape> 
-                </transform>
-                <transform translation='-1 0 0'> 
-                <shape onclick="alert('Hello, click!');"> 
-                    <appearance> 
-                    <material id="color" diffuseColor='0 1 0'></material> 
-                    </appearance> 
-                    <box size='1,1,1'></box> 
-                </shape> 
-                </transform>  -->
