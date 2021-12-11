@@ -1,28 +1,49 @@
-<html> 
-    <head> 
-        <title>My first X3DOM page</title> 			
-        <script type='text/javascript' src='http://www.x3dom.org/download/x3dom.js'> </script> 
-        <link rel='stylesheet' type='text/css' href='http://www.x3dom.org/download/x3dom.css'></link> 
-        <script type="module" src="./index.js" defer></script>
-        <script>
-            function changeColor(event) {
-                console.log("click")
-                const myEvent = new Event('clickField');
-                document.dispatchEvent(myEvent);
-            }
-        </script>
+<html>
 
-    </head> 
-    <body> 
-        <button id="init">Init</button>
-        <h1>Hello, X3DOM!</h1> 
-        <p> 
-            This is my first html page with some 3d objects. 
-        </p>
-        <x3d width='1000px' height='800px'> 
+<head>
+    <title>My first X3DOM page</title>
+    <script type='text/javascript' src='http://www.x3dom.org/download/x3dom.js'> </script>
+    <link rel='stylesheet' type='text/css' href='http://www.x3dom.org/download/x3dom.css'>
+    </link>
+    <link rel='stylesheet' type='text/css' href='style.css'>
+    </link>
+    <link rel="stylesheet" href="boardStyle.css">
+    <script type="module" src="./index.js" defer></script>
+    <script type="module" src="boardTest.js" defer></script>
+    <script>
+        function changeColor(event) {
+            console.log("click")
+            const myEvent = new Event('clickField');
+            document.dispatchEvent(myEvent);
+        }
+    </script>
+
+</head>
+
+<body>
+
+    <button id="init">Init</button>
+    <button id="movePawn">Move Pawn</button>
+    <button id="highlight">Highlight</button>
+    <button id="highlightOff">HighlightOff</button>
+    <button id="kill">Kill</button>
+
+    <h1>Hello, X3DOM!</h1>
+    <p>
+        This is my first html page with some 3d objects.
+    </p>
+
+    <section>
+
+        <x3d width='1000px' height='800px'>
             <scene>
-                
-            </scene> 
-        </x3d>  
-    </body> 
-</html>    
+
+            </scene>
+        </x3d>
+
+        <div id="c"></div>
+    </section>
+
+</body>
+
+</html>

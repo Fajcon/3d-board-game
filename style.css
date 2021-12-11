@@ -1,0 +1,13 @@
+shape.boardField {
+    pointer-events: none;
+}
+
+
+x3d{
+    border: black solid 1px;
+}
+
+section {
+    display: flex;
+    justify-content: space-between;
+}
