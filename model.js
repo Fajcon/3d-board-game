@@ -20,15 +20,15 @@ export class Board {
         this.dice = new Dice();
     }
 
-    attachObserver(observer){
+    attachObserver(observer) {
         this.observers.push(observer)
     }
 
-    at(x, y ,z){
+    at(x, y, z) {
         return this.fields[x][y][z]
     }
 
-    *flat(){
+    *flat() {
         for (let i = 0; i < this.sizeX; i++) {
             for (let j = 0; j < this.sizeY; j++) {
                 yield* this.fields[i][j]
@@ -36,58 +36,58 @@ export class Board {
         }
     }
 
-    forEach(fn){
+    forEach(fn) {
         for (let el of this.flat()) {
             fn(el)
         }
     }
 
-    highlight(fields){
-        fields.forEach(el=>{
-            this.observers.forEach(obs=>obs.observeHighlight(el))
+    highlight(fields) {
+        fields.forEach(el => {
+            this.observers.forEach(obs => obs.observeHighlight(el))
         })
         this.highlighted.push(...fields)
     }
 
-    highlightOffAll(){
-        this.highlighted.forEach(el=>{
-            this.observers.forEach(obs=>obs.observeHighlightOff(el))
+    highlightOffAll() {
+        this.highlighted.forEach(el => {
+            this.observers.forEach(obs => obs.observeHighlightOff(el))
         })
         this.highlighted = []
     }
 
-    move(from, to){
-        if(this.dice.roll() >= from.enemyNeighbours()) {
+    move(from, to) {
+        if (this.dice.roll() >= from.enemyNeighbours()) {
             to.state = from.state
             from.state = "empty"
             this.observers.forEach(obs => obs.observeMove(from, to))
-            if (to.enemyNeighbours().length > 0){
+            if (to.enemyNeighbours().length > 0) {
                 this.observers.forEach(obs => obs.observeFighting(to, to.enemyNeighbours()))
             }
         } else {
-            this.observers.forEach(obs=>obs.observeFailedEscape(from, to, from.enemyNeighbours()))
+            this.observers.forEach(obs => obs.observeFailedEscape(from, to, from.enemyNeighbours()))
         }
     }
 
-    attack(to){
-        if(this.dice.roll() <= to.enemyNeighbours().length){
-            this.observers.forEach(obs=>obs.observeKill(to, to.enemyNeighbours()))
+    attack(to) {
+        if (this.dice.roll() <= to.enemyNeighbours().length) {
+            this.observers.forEach(obs => obs.observeKill(to, to.enemyNeighbours()))
             to.state = "empty"
         }
     }
 
 
 
-    click(field){
-        if (this.highlighted.includes(field)){
+    click(field) {
+        if (this.highlighted.includes(field)) {
             this.highlightOffAll()
             if (field.state === "empty") this.move(this.selected, field)
             else if (field.state === this.selected.enemyColour()) this.attack(field)
             this.selected = null
-            if (this.toMove==="red"){
-                this.toMove="blue"
+            if (this.toMove === "red") {
+                this.toMove = "blue"
             } else {
-                this.toMove="red"
+                this.toMove = "red"
             }
             return;
         }
@@ -97,7 +97,7 @@ export class Board {
                 this.selected = null
                 return;
             case "red":
-                if (this.toMove !== "red"){
+                if (this.toMove !== "red") {
                     this.highlightOffAll()
                     this.selected = null
                     return;
@@ -105,7 +105,7 @@ export class Board {
                     return this.highlightPossible(field);
                 }
             case "blue":
-                if (this.toMove !== "blue"){
+                if (this.toMove !== "blue") {
                     this.highlightOffAll()
                     this.selected = null
                     return;
@@ -141,47 +141,63 @@ export class Field {
 
     neighbours() {
         let result = []
-        if (this.x + 1 < this.board.sizeX)   result.push(this.board.at(this.x + 1,    this.y,     this.z))
-        if (this.x - 1 >= 0)                 result.push(this.board.at(this.x - 1,    this.y,     this.z))
-        if (this.y + 1 < this.board.sizeY)   result.push(this.board.at(   this.x,     this.y + 1, this.z))
-        if (this.y - 1 >= 0)                 result.push(this.board.at(   this.x,     this.y - 1, this.z))
-        if (this.z + 1 < this.board.sizeZ)   result.push(this.board.at(   this.x,        this.y,  this.z + 1))
-        if (this.z - 1 >= 0)                 result.push(this.board.at(   this.x,        this.y,  this.z - 1))
+        if (this.x + 1 < this.board.sizeX) result.push(this.board.at(this.x + 1, this.y, this.z))
+        if (this.x - 1 >= 0) result.push(this.board.at(this.x - 1, this.y, this.z))
+        if (this.y + 1 < this.board.sizeY) result.push(this.board.at(this.x, this.y + 1, this.z))
+        if (this.y - 1 >= 0) result.push(this.board.at(this.x, this.y - 1, this.z))
+        if (this.z + 1 < this.board.sizeZ) result.push(this.board.at(this.x, this.y, this.z + 1))
+        if (this.z - 1 >= 0) result.push(this.board.at(this.x, this.y, this.z - 1))
         return result
     }
 
-    enemyNeighbours(){
-        return this.neighbours().filter(n=>n.state===this.enemyColour())
+    enemyNeighbours() {
+        return this.neighbours().filter(n => n.state === this.enemyColour())
     }
 
-    possibleMoves(){
-        return this.neighbours().filter(n=>n.state===this.enemyColour() || n.state==="empty")
+    possibleMoves() {
+        return this.neighbours().filter(n => n.state === this.enemyColour() || n.state === "empty")
     }
 
-    enemyColour(){
+    enemyColour() {
         if (this.state === "red") return "blue"
         if (this.state === "blue") return "red"
         throw ""
     }
 
-    click(){
+    click() {
         this.board.click(this)
     }
 }
 
 export class BoardObserver { //interface
-    observeMove(from, to){};
-    observeHighlight(field){};
-    observeHighlightOff(field){};
-    observeKill(killed, enemies){};
-    observeFailedEscape(from, to, enemies){};
-    observeFighting(defending, enemies){};
+    observeMove(from, to) { };
+    observeHighlight(field) { };
+    observeHighlightOff(field) { };
+    observeKill(killed, enemies) { };
+    observeFailedEscape(from, to, enemies) { };
+    observeFighting(defending, enemies) { };
 }
 
 export class Dice {
-    roll(){
-        let r = Math.floor(Math.random() * 5 + 1);
-        console.log(r)
+    roll() {
+        const dice = [...document.querySelectorAll(".die-list")];
+        let r = 0;
+        dice.forEach(die => {
+            die.classList.toggle("odd-roll");
+            die.classList.toggle("even-roll");
+
+            r = Math.floor(Math.random() * 5 + 1);
+            console.log(r)
+            die.dataset.roll = r;
+        });
+
         return r
     }
+
+
+
+
+
+
+
 }
