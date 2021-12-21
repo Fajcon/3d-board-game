@@ -15,8 +15,6 @@ board.at(7, 7, 0).state = "blue"
 board.at(7, 7, 1).state = "blue"
 board.at(7, 7, 2).state = "blue"
 
-let dice = new Dice();
-document.getElementById("roll-button").addEventListener("click", dice.roll);
 let c = document.querySelector("#c")
 
 let boardDisplay2d = new BoardDisplay2d(c, board)

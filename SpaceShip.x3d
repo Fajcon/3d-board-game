@@ -8,6 +8,7 @@
 	<meta name="source" content="SpaceShip.obj" />
 </head>
 <Scene>
+<Transform translation="0 0 -2">
 	<Shape>
 		<Appearance DEF="Material_Base">
 			<Material
@@ -41,5 +42,6 @@
 			<Coordinate USE="ObjCoordinates" />
 		</IndexedFaceSet>
 	</Shape>
+	</Transform>
 </Scene>
 </X3D>
