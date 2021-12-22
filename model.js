@@ -57,7 +57,7 @@ export class Board {
     }
 
     move(from, to) {
-        if (this.dice.roll() >= from.enemyNeighbours()) {
+        if (from.enemyNeighbours().length == 0 || this.dice.roll() >= from.enemyNeighbours().length) {
             to.state = from.state
             from.state = "empty"
             this.observers.forEach(obs => obs.observeMove(from, to))
