@@ -8,12 +8,12 @@
 	<meta name="source" content="SpaceShip.obj" />
 </head>
 <Scene>
-<Transform translation="0 0 -2">
+<Transform translation="0 3 0" rotation="1.0 0.0 0.0 1.57">
 	<Shape>
 		<Appearance DEF="Material_Base">
 			<Material
 				ambientIntensity="0"
-				diffuseColor="0.63999998569488525 0.63999998569488525 0.63999998569488525"
+				diffuseColor="0 0 1"
 				shininess="0.75061273574829102"
 				specularColor="0.5 0.5 0.5" />
 		</Appearance>

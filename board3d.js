@@ -6,9 +6,11 @@ let ySize = 8;
 let zSize = 3;
 let board3d = new Array();
 
-const animationTime = 3;
+const animationTime = 1;
 const fps = 30;
 const frames = fps * animationTime;
+
+const fights = [];
 
 export class BoardDisplay3d extends BoardObserver {
 
@@ -18,7 +20,7 @@ export class BoardDisplay3d extends BoardObserver {
         this.board = board;
         board.attachObserver(this)
         this.initButton = document.querySelector('button#init');
-        this.initButton.addEventListener('click', () => {this.init()}, false);
+        this.initButton.addEventListener('click', () => { this.init() }, false);
 
         // this.movePawnButton = document.querySelector('button#movePawn');
         // this.movePawnButton.addEventListener('click', () => { this.observeMove({ x: 0, y: 0, z: 0 }, { x: 2, y: 2, z: 2 }) }, false);
@@ -34,17 +36,21 @@ export class BoardDisplay3d extends BoardObserver {
     }
 
     init() {
-        let spawnPawn = (x, y, z) => {
-            var transform = document.createElement("Transform");
+        let spawnPawn = (x, y, z, isRed) => {
+            let transform = document.createElement("Transform");
             transform.classList.add("pawn");
-            var inline = document.createElement("Inline");
+            let inline = document.createElement("Inline");
             inline.setAttribute("SpaceShip", "Inline");
             inline.setAttribute("mapDEFToID", true);
             transform.setAttribute("scale", "0.12 0.15 0.12");
-            transform.setAttribute("rotation", "0.0 1.0 0.0 1.5708");
             transform.setAttribute("translation", "" + x + " " + y + " " + z);
             transform.appendChild(inline);
-            inline.setAttribute("url", "SpaceShip.x3d");
+            inline.setAttribute("url", "SpaceShipBlue.x3d");
+            transform.setAttribute("rotation", "0.0 1.0 0.0 3.14");
+            if (isRed) {
+                transform.setAttribute("rotation", "1.0 0.0 0.0 3.14");
+                inline.setAttribute("url", "SpaceShipRed.x3d");
+            }
             document.querySelector('scene').appendChild(transform);
 
             board3d[x][y][z].pawn = transform;
@@ -60,10 +66,10 @@ export class BoardDisplay3d extends BoardObserver {
                 for (let k = 0; k < zSize; k++) {
                     board3d[i][j][k] = new BoardField(i, j, k);
                     scene.appendChild(board3d[i][j][k].transformElement);
-                    if (this.board.at(i, j, k).state === "red"){
-                        spawnPawn(i, j, k)
-                    } else if(this.board.at(i, j, k).state === "blue"){
-                        spawnPawn(i, j, k)
+                    if (this.board.at(i, j, k).state === "red") {
+                        spawnPawn(i, j, k, true)
+                    } else if (this.board.at(i, j, k).state === "blue") {
+                        spawnPawn(i, j, k, false)
                     }
                 }
             }
@@ -73,9 +79,15 @@ export class BoardDisplay3d extends BoardObserver {
     }
 
     observeMove(from, to) {
+        for (let i = 0; i < fights.length; i++){
+            if (fights[i].def == from ||fights[i].enemy == from){
+                fights[i].laserMaterial.setAttribute("transparency", '1')
+                fights.splice(i, 1);
+            }
+        }
         if (board3d && board3d[from.x] && board3d[from.x][from.y] && board3d[from.x][from.y][from.z] && board3d[from.x][from.y][from.z].pawn) {
             let oldPosition = board3d[from.x][from.y][from.z].pawn.getAttribute("translation").split(" ");
-            let newPosition = [to.x, to.y, to.z] 
+            let newPosition = [to.x, to.y, to.z]
             let positionsList = [];
 
             oldPosition[0] = parseFloat(oldPosition[0]);
@@ -86,9 +98,9 @@ export class BoardDisplay3d extends BoardObserver {
                 oldPosition[1],
                 oldPosition[2],
             ]);
-            for (let i = 1; i < frames-1; i++) {
+            for (let i = 1; i < frames - 1; i++) {
                 positionsList.push([
-                    (newPosition[0] - oldPosition[0]) / frames * i + oldPosition[0], 
+                    (newPosition[0] - oldPosition[0]) / frames * i + oldPosition[0],
                     (newPosition[1] - oldPosition[1]) / frames * i + oldPosition[1],
                     (newPosition[2] - oldPosition[2]) / frames * i + oldPosition[2],
                 ]);
@@ -111,10 +123,10 @@ export class BoardDisplay3d extends BoardObserver {
                         board3d[to.x][to.y][to.z].pawn = board3d[from.x][from.y][from.z].pawn;
                         board3d[from.x][from.y][from.z].pawn = null;
                     }
-                }, frames/(animationTime*1000))
+                }, frames / (animationTime * 1000))
             }
 
-            myLoop();  
+            myLoop();
         }
     }
 
@@ -129,7 +141,16 @@ export class BoardDisplay3d extends BoardObserver {
     }
 
     observeKill(killed, enemies) {
-        if(board3d[killed.x][killed.y][killed.z].pawn){
+        enemies.forEach((enemy) => {
+            for (let i = 0; i < fights.length; i++){
+                fights[i].laserMaterial.setAttribute("transparency", '1')
+                if ((fights[i].def == killed && fights[i].enemy == enemy) || (fights[i].def == enemy && fights[i].enemy == killed)){
+                    fights.splice(i, 1);
+                }
+            }
+        })
+    
+        if (board3d[killed.x][killed.y][killed.z].pawn) {
             board3d[killed.x][killed.y][killed.z].pawn.remove();
             board3d[killed.x][killed.y][killed.z].pawn = null;
         }
@@ -140,7 +161,60 @@ export class BoardDisplay3d extends BoardObserver {
     }
 
     observeFighting(defending, enemies) {
-        console.error("observeFighting not implemented")
+        enemies.forEach(enemy => {
+            let transformCylinder = document.createElement("Transform");
+            if(enemy.x != defending.x){
+                transformCylinder.setAttribute("rotation", "0 0 1 1.57");
+            } else if(enemy.y != defending.y){
+                // transformCylinder.setAttribute("rotation", "0 1 0 1.57");
+            } else if(enemy.z != defending.z){
+                transformCylinder.setAttribute("rotation", "1 0 0 1.57");
+            }
+            let laserMaterial = document.createElement("Material");
+            laserMaterial.setAttribute("diffuseColor", "0.0 1.0 0.0");
+            laserMaterial.setAttribute("transparency", "1")
+            let shape = document.createElement("Shape");
+            transformCylinder.setAttribute("translation", ""
+                + (defending.x + enemy.x) / 2 + " "
+                + (defending.y + enemy.y) / 2 + " "
+                + (defending.z + enemy.z) / 2);
+            shape.innerHTML = `
+            <Cylinder 
+                bottom='true' 
+                ccw='true' 
+                height='1.2' 
+                lit='true' 
+                metadata='X3DMetadataObject' 
+                radius='.01' side='true'
+                solid='true' 
+                subdivision='32' 
+                top='true' 
+                useGeoCache='true' >
+            </Cylinder>
+            `;
+            let appearance = document.createElement("Appearance");
+            appearance.appendChild(laserMaterial);
+            shape.appendChild(appearance);
+            transformCylinder.appendChild(shape);
+            document.querySelector('scene').appendChild(transformCylinder);
+            fights.push({
+                "def": defending,
+                "enemy": enemy,
+                "laserMaterial": laserMaterial
+            });
+            this.animateFigth();
+        })
+    }
+
+    animateFigth() {
+        setTimeout(() => {
+            fights.forEach(fight => {
+                let transparency = parseFloat(fight.laserMaterial.getAttribute("transparency"));
+                transparency = transparency + 0.05 > 1 ? transparency = 0: transparency + 0.05
+                fight.laserMaterial.setAttribute("transparency", transparency)
+            })
+            this.animateFigth();
+        },30)
     }
 
 }

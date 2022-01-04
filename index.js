@@ -8,13 +8,14 @@ document.addEventListener('clickField', () => {
 })
 
 let board = new Board()
-board.at(0, 0, 0).state = "red"
-board.at(0, 0, 1).state = "red"
-board.at(0, 0, 2).state = "red"
-board.at(7, 7, 0).state = "blue"
-board.at(7, 7, 1).state = "blue"
-board.at(7, 7, 2).state = "blue"
-
+for (let i = 0; i <= 7; i++){
+    board.at(i, 0, 0).state = "red"
+    board.at(i, 0, 1).state = "red"
+    board.at(i, 0, 2).state = "red"
+    board.at(i, 7, 0).state = "blue"
+    board.at(i, 7, 1).state = "blue"
+    board.at(i, 7, 2).state = "blue"
+}
 let c = document.querySelector("#c")
 
 let boardDisplay2d = new BoardDisplay2d(c, board)
