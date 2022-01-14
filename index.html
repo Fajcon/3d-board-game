@@ -22,7 +22,18 @@
 
 <body>
 
-  <!-- ---dice--- -->
+  <button id="init">Init</button>
+
+  <section>
+    <x3d width='900px' height='730px'>
+      <scene>
+        <Viewpoint position="3 3 -15" orientation="1 0 0 3.14" zNear="6.09864"
+          zFar="23.35907" centerOfRotation="0.00000 0.00000 0.00000" fieldOfView="0.78540"
+          description="defaultX3DViewpointNode"></Viewpoint>
+      </scene>
+    </x3d>
+
+    <!-- ---dice--- -->
   <main>
     <div class="dice">
       <ol class="die-list even-roll" data-roll="1" id="die-1">
@@ -64,23 +75,6 @@
     </div>
   </main>
   <!-- ---dice--- -->
-
-  <button id="init">Init</button>
-  <!-- <button id="movePawn">Move Pawn</button>
-    <button id="highlight">Highlight</button>
-    <button id="highlightOff">HighlightOff</button>
-    <button id="kill">Kill</button> -->
-
-  <section>
-
-    <x3d width='1000px' height='800px'>
-      <scene>
-        <Viewpoint position="3 3 -15" orientation="1 0 0 3.14" zNear="6.09864"
-          zFar="23.35907" centerOfRotation="0.00000 0.00000 0.00000" fieldOfView="0.78540"
-          description="defaultX3DViewpointNode"></Viewpoint>
-
-      </scene>
-    </x3d>
 
     <div id="c"></div>
   </section>

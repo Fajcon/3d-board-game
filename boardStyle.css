@@ -1,12 +1,15 @@
 .board2d {
     display: grid;
-    grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px ;
-    grid-template-rows: 50px 50px 50px 50px 50px 50px 50px 50px ;
+    grid-template-columns: 30px 30px 30px 30px 30px 30px 30px 30px ;
+    grid-template-rows: 30px 30px 30px 30px 30px 30px 30px 30px ;
     border: solid black 2px;
     width: fit-content;
 }
 
 .field {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .color1 {
@@ -18,21 +21,19 @@
 }
 
 .activated {
-    border: white solid 5px;
+    border: white solid 2px;
 }
 
 .redPawn {
     background-color: red;
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
     border-radius: 20px;
-    margin: 5px;
 }
 
 .bluePawn {
     background-color: blue;
-    width: 40px;
-    height: 40px;
+    width: 25px;
+    height: 25px;
     border-radius: 20px;
-    margin: 5px;
 }
